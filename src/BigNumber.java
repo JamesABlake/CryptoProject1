@@ -26,13 +26,12 @@ public final class BigNumber {
 			nextDigit = text.charAt(text.length() - reverseStringIndex - 1);
 			digits.add(Integer.parseInt(Character.toString(nextDigit)));
 		}
-		if(digits.get(digits.size() - 1 ) > 4 ) digits.add(0); // preventing large positive numbers from being confused as negatives. 
+		if(digits.get(digits.size() - 1 ) > 4 ) digits.add(0); // preventing large positive numbers from being confused as negatives.
 
 		BigNumber number = new BigNumber(digits);
 		if (isNegative) number = number.inverse();
 
 
-		System.out.println(number.digits.toString());
 		return number.truncate();
 	}
 
@@ -202,7 +201,6 @@ public final class BigNumber {
 
 		BigNumber shouldBeZero = this.subtract(other);
 
-		System.out.println(shouldBeZero.toString());
 
 		if (shouldBeZero.isZero()) return true;
 		else return false;
