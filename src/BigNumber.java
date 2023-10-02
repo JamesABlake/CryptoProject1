@@ -26,8 +26,14 @@ public final class BigNumber {
 			nextDigit = text.charAt(text.length() - reverseStringIndex - 1);
 			digits.add(Integer.parseInt(Character.toString(nextDigit)));
 		}
+		if(digits.get(digits.size() - 1 ) > 4 ) digits.add(0); // preventing large positive numbers from being confused as negatives. 
 
-		return new BigNumber(digits);
+		BigNumber number = new BigNumber(digits);
+		if (isNegative) number = number.inverse();
+
+
+		System.out.println(number.digits.toString());
+		return number.truncate();
 	}
 
 	/**
@@ -49,6 +55,8 @@ public final class BigNumber {
 		// -A + B -> -A - -B). This means that addition can be simplified, only
 		// handling cases where A and B share a sign and therefor increase in magnitude.
 		ArrayList<Integer> addedDigits = new ArrayList<>();
+		this.truncate();
+		other.truncate();
 
 		// This finds the smaller and bigger number list between the left and right
 		// hand inputs, making it easy to loop through them fully regardless of which
@@ -63,7 +71,7 @@ public final class BigNumber {
 		else largerSize = thisSize;
 
 		// This is essential for preventing wierd issues with 10's complements. It basically lets us ignore the final carry bit. It can sometimes be redundant but that's not a huge problem.
-		largerSize += 1;
+		largerSize += 3;
 		this.extendSelf(largerSize);
 		other.extendSelf(largerSize);
 
@@ -75,7 +83,7 @@ public final class BigNumber {
 			nextDigit += other.digits.get(i);
 			nextDigit += carryBit;
 			if (nextDigit > 9){
-				carryBit = 1;
+				carryBit = 1; 
 				nextDigit -= 10;
 			}
 			else carryBit = 0;
@@ -84,6 +92,34 @@ public final class BigNumber {
 		carryBit = 0;
 		return new BigNumber(addedDigits).truncate();
 	}
+
+	private BigNumber truncate() {
+		if (this.isNegative()) return negativeTruncate();
+		else return positiveTruncate();
+	}
+
+	private BigNumber positiveTruncate(){
+		int targetNumber = 0;
+		for(int i = this.digits.size() - 1; i > 0; i --){
+			if(this.digits.get(i) != targetNumber) break;
+			if(this.digits.get(i) == targetNumber && this.digits.get(i - 1) < 5) {
+				this.digits.remove(i);
+			}
+		}
+		return this;
+	}
+
+	private BigNumber negativeTruncate(){
+		int targetNumber = 9;
+		for(int i = this.digits.size() - 1; i > 0; i --){
+			if(this.digits.get(i) != targetNumber) break;
+			if(this.digits.get(i) == targetNumber && this.digits.get(i - 1) > 4) {
+				this.digits.remove(i);
+			}
+		}
+		return this;
+	}
+
 
 	private void extendSelf(int digitCount){
 		int extensionDigit;
@@ -140,21 +176,10 @@ public final class BigNumber {
 			invertedDigits.add(9 - this.digits.get(digitIndex));
 		}
 
-		return new BigNumber(invertedDigits);
+		return new BigNumber(invertedDigits).truncate();
 	}
 
-	private BigNumber truncate() {
-		int targetedDigit;
-		if (this.isNegative()) targetedDigit = 9;
-		else targetedDigit = 0;
 
-		for(int i = (this.digits.size() - 1); i >= 0; i -- ){
-			if (this.digits.get(i) != targetedDigit) break;
-			else this.digits.remove(i);
-		}
-
-		return this;
-	}
 
 	/**
 	 * todo: ensure that this doesn't give false negatives with multiple zero digits
@@ -165,6 +190,7 @@ public final class BigNumber {
 	}
 
 	private boolean isNegative(){
+		if (this.digits.size() == 0) return false;
 		int highOrder = this.digits.get(this.digits.size() - 1);
 		return (highOrder > 4);
 	}
@@ -174,12 +200,12 @@ public final class BigNumber {
 		if (!(obj instanceof BigNumber)) return false;
 		BigNumber other = (BigNumber) obj;
 
-		if (this.digits.size() != other.digits.size()) return false;
+		BigNumber shouldBeZero = this.subtract(other);
 
-		for (int i = 0; i < other.digits.size(); i++){
-			if (!this.digits.get(i).equals(other.digits.get(i))) return false;
-		}
-		return true;
+		System.out.println(shouldBeZero.toString());
+
+		if (shouldBeZero.isZero()) return true;
+		else return false;
 	}
 
 	@Override
@@ -189,6 +215,7 @@ public final class BigNumber {
 
 	@Override
 	public String toString() {
+		this.truncate();
 		if(isZero())
 			return "0";
 
