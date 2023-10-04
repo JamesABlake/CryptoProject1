@@ -16,10 +16,10 @@ public class Driver
         String line = scanner.nextLine();
 
         while (!line.isEmpty())
-        {	x = new BigNumber (line);
+        {	x = BigNumber.fromString(line);
             System.out.println ("Enter a second BigNumber");
             line = scanner.nextLine();
-            y = new BigNumber (line);
+            y = BigNumber.fromString(line);
 
             System.out.println ("Sum: " + x.add(y));
             System.out.println ("Sum: " + y.add(x));

@@ -23,8 +23,8 @@ public class UnitTests {
 		for(int i = 0; i < checks.size(); i += 5) {
 			boolean passed = true;
 			System.out.printf("Test %s\n", i / 5);
-			BigNumber A = new BigNumber(checks.get(i));
-			BigNumber B = new BigNumber(checks.get(i + 1));
+			BigNumber A = BigNumber.fromString(checks.get(i));
+			BigNumber B = BigNumber.fromString(checks.get(i + 1));
 
 			passed &= DoTest(A, B, () -> A.add(B), '+', checks.get(i + 2));
 			passed &= DoTest(B, A, () -> B.add(A), '+', checks.get(i + 2));
@@ -37,8 +37,10 @@ public class UnitTests {
 	}
 
 	public static boolean DoTest(BigNumber A, BigNumber B, Supplier<BigNumber> test, char operator, String expected) {
-		String result = test.get().toString();
-		if(result.equals(expected)) {
+		BigNumber result = test.get();
+		BigNumber expectedNumber = BigNumber.fromString(expected);
+
+		if(result.equals(expectedNumber)) {
 			System.out.printf("Success: %s (A) %c %s (B) = %s == %s\n", A, operator, B, result, expected);
 			return true;
 		} else {
