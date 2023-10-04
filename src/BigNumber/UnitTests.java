@@ -1,8 +1,7 @@
-import javax.swing.*;
-import java.util.ArrayList;
+package BigNumber;
+
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class UnitTests {
