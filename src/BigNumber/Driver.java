@@ -1,4 +1,4 @@
-/**  Test the BigNumber class.
+/**  Test the BigNumber.BigNumber class.
  *   Cryptography Project 1
  *   @author (sdb)
  *   @version (Sep 2012)
@@ -19,7 +19,7 @@ public class Driver
 
         while (!line.isEmpty())
         {	x = BigNumber.fromString(line);
-            System.out.println ("Enter a second BigNumber");
+            System.out.println ("Enter a second BigNumber.BigNumber");
             line = scanner.nextLine();
             y = BigNumber.fromString(line);
 

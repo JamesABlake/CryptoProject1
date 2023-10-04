@@ -36,10 +36,8 @@ public class UnitTests {
 	}
 
 	public static boolean DoTest(BigNumber A, BigNumber B, Supplier<BigNumber> test, char operator, String expected) {
-		BigNumber result = test.get();
-		BigNumber expectedNumber = BigNumber.fromString(expected);
-
-		if(result.equals(expectedNumber)) {
+		String result = test.get().toString();
+		if(result.equals(expected)) {
 			System.out.printf("Success: %s (A) %c %s (B) = %s == %s\n", A, operator, B, result, expected);
 			return true;
 		} else {
