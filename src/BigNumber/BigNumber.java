@@ -144,8 +144,23 @@ public final class BigNumber {
 		return add(other.inverse());
 	}
 
-	public BigNumber multiply(BigNumber rh) {
-		return null;
+	public BigNumber multiply(BigNumber other) {
+
+		BigNumber increment;
+
+		if(other.isNegative())
+			increment = BigNumber.fromString("-1");
+		else increment = BigNumber.fromString("1");
+
+		BigNumber otherCopy = other.copy();
+		BigNumber result = BigNumber.fromString("0");
+
+		while (!otherCopy.isZero()){
+			otherCopy = otherCopy.subtract(increment);
+			if (other.isNegative()) result = result.subtract(this);
+			else result = result.add(this);
+		}
+		return result;
 	}
 
 	public BigNumber divide(BigNumber rh) {
