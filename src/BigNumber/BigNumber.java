@@ -163,6 +163,10 @@ public final class BigNumber {
 		return result;
 	}
 
+	private BigNumber copy(){
+		return BigNumber.fromString(this.toString());
+	}
+
 	public BigNumber divide(BigNumber rh) {
 		return null;
 	}
