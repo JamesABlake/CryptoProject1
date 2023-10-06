@@ -1,3 +1,5 @@
+First: -78
+Second: 26
 Sum: -52
 Sum: -52
 First - Second: 104
