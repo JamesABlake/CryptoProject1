@@ -1,0 +1,10 @@
+Sum: 44
+Sum: 44
+First - Second: 44
+Second - First: -44
+Product: 0
+Product: 0
+Sqrt of first: 6
+Sqrt of second: 0
+Factors of first: [44, 22, 2, 4, 1, 11]
+Factors of second: []

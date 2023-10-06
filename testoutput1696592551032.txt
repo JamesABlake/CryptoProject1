@@ -1,0 +1,14 @@
+Sum: 117852728
+Sum: 117852728
+First - Second: 117852726
+Second - First: -117852726
+Product: 117852727
+Product: 117852727
+First / Second: 117852727
+Second / First: 0
+First % Second: 0
+Second % First: 1
+Sqrt of first: 10855
+Sqrt of second: 1
+Factors of first: [117852727, 10853, 10859, 1]
+Factors of second: []

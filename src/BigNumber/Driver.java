@@ -5,6 +5,7 @@
  */
 package BigNumber;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -15,6 +16,14 @@ public class Driver
 	{
 		Scanner scanner = new Scanner (System.in);
 		BigNumber x,y;
+		File newFile = new File("testoutput" + System.currentTimeMillis() + ".txt");
+		try{newFile.createNewFile();}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(newFile.getName(), "UTF-8");
 
 		System.out.println ("Enter two BigNumbers, on separate lines, or hit Enter to terminate");
 		String line = scanner.nextLine();
@@ -25,22 +34,27 @@ public class Driver
 			line = scanner.nextLine();
 			y = BigNumber.fromString(line);
 
-			System.out.println ("Sum: " + x.add(y));
-			System.out.println ("Sum: " + y.add(x));
-			System.out.println ("First - Second: " + x.subtract(y));
-			System.out.println ("Second - First: " + y.subtract(x));
-			System.out.println ("Product: " + x.multiply(y));
-			System.out.println ("Product: " + y.multiply(x));
-			System.out.println ("First / Second: " + x.divide(y)[0]);
-			System.out.println ("Second / First: " + y.divide(x)[0]);
-			System.out.println ("First % Second: " + x.divide(y)[1]);
-			System.out.println ("Second % First: " + y.divide(x)[1]);
-			System.out.println("Sqrt of first: " + GetSqrt(x));
-			System.out.println("Sqrt of second: " + GetSqrt(y));
-			System.out.println("Factors of first: " + GetFactors(x));
-			System.out.println("Factors of second: " + GetFactors(y));
-
+			 writer.println("Sum: " + x.add(y));
+			writer.println ("Sum: " + y.add(x));
+			writer.println ("First - Second: " + x.subtract(y));
+			writer.println ("Second - First: " + y.subtract(x));
+			writer.println ("Product: " + x.multiply(y));
+			writer.println ("Product: " + y.multiply(x));
+			if(!x.isZero() && !y.isZero()) {
+				writer.println("First / Second: " + x.divide(y)[0]);
+				writer.println("Second / First: " + y.divide(x)[0]);
+				writer.println("First % Second: " + x.divide(y)[1]);
+				writer.println("Second % First: " + y.divide(x)[1]);
+			}
+			writer.println("Sqrt of first: " + GetSqrt(x));
+			writer.println("Sqrt of second: " + GetSqrt(y));
+			writer.println("Factors of first: " + GetFactors(x));
+			writer.println("Factors of second: " + GetFactors(y));
 			line = scanner.nextLine();
+			writer.close();
+		}
+		} catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 
@@ -59,7 +73,6 @@ public class Driver
 			}
 			divisor = divisor.add(BigNumber.One);
 			if(divisor.compareTo(check) > 0) {
-				System.out.println("Factor at " + (check.divide(check2)[0]) + "%");
 				check = check.add(check2);
 			}
 		}
