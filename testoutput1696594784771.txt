@@ -1,0 +1,14 @@
+Sum: 3
+Sum: 3
+First - Second: -1
+Second - First: 1
+Product: 2
+Product: 2
+First / Second: 0
+Second / First: 2
+First % Second: 1
+Second % First: 0
+Sqrt of first: 1
+Sqrt of second: 1
+Factors of first: []
+Factors of second: [2, 1]

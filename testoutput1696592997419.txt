@@ -1,0 +1,14 @@
+Sum: 677
+Sum: 677
+First - Second: -211
+Second - First: 211
+Product: 103452
+Product: 103452
+First / Second: 0
+Second / First: 1
+First % Second: 233
+Second % First: 211
+Sqrt of first: 15
+Sqrt of second: 21
+Factors of first: [233, 1]
+Factors of second: [222, 37, 4, 6, 444, 12, 2, 74, 3, 1, 148, 111]

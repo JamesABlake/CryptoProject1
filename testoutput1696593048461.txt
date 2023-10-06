@@ -1,0 +1,14 @@
+Sum: -52
+Sum: -52
+First - Second: 104
+Second - First: -104
+Product: -2028
+Product: -2028
+First / Second: 0
+Second / First: -3
+First % Second: -26
+Second % First: 0
+Sqrt of first: 5
+Sqrt of second: -78
+Factors of first: [26, 2, 13, 1]
+Factors of second: []

@@ -1,0 +1,10 @@
+Sum: 71
+Sum: 71
+First - Second: -71
+Second - First: 71
+Product: 0
+Product: 0
+Sqrt of first: 0
+Sqrt of second: 8
+Factors of first: []
+Factors of second: [71, 1]
