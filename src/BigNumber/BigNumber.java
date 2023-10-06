@@ -1,22 +1,26 @@
 package BigNumber;
 
 import java.util.ArrayList;
+import java.util.Stack;
+
 import static BigNumber.Helper.*;
 
-public final class BigNumber {
+public final class BigNumber implements Comparable<BigNumber> {
+	public static final BigNumber Zero = BigNumber.fromString("0");
+	public static final BigNumber One = BigNumber.fromString("1");
 
 	/**
 	 * A list of numbers that make up the larger number. They are ordered from
 	 * least significant to most.
 	 * */
-	private final ArrayList<Integer> digits;
+	private final FinalList<Integer> digits;
 
 	/**
 	 * Creates a BigNumber from preformatted data.
 	 * @param digits The preformatted list of numbers to assign to the internal list.
 	 */
 	private BigNumber(ArrayList<Integer> digits) {
-		this.digits = digits;
+		this.digits = new FinalList<>(digits);
 	}
 
 	/**
@@ -48,7 +52,7 @@ public final class BigNumber {
 			digits.add(0);
 
 		if(isNegative)
-			return new BigNumber(digits).inverse();
+			return new BigNumber(digits).negate();
 		else
         	return new BigNumber(digits);
 	}
@@ -59,9 +63,8 @@ public final class BigNumber {
 	 * @return A new BigNumber that's the result of adding other to this BigNumber.
 	 */
 	public BigNumber add(BigNumber other) {
-		ArrayList<Integer> addedDigits = new ArrayList<>();
-		int thisSize = this.digits.size();
-		int otherSize = other.digits.size();
+		int thisSize = this.digits.length;
+		int otherSize = other.digits.length;
 
 		// This finds the smaller and bigger number list between the left and right
 		// hand inputs, making it easy to loop through them fully regardless of which
@@ -71,11 +74,11 @@ public final class BigNumber {
 		int smallSize = thisIsSmaller ? thisSize : otherSize;
 		int bigSize = thisIsSmaller ? otherSize : thisSize;
 
-		ArrayList<Integer> smallList = thisIsSmaller ? this.digits : other.digits;
-		ArrayList<Integer> bigList = thisIsSmaller ? other.digits : this.digits;
+		FinalList<Integer> smallList = thisIsSmaller ? this.digits : other.digits;
+		FinalList<Integer> bigList = thisIsSmaller ? other.digits : this.digits;
 
-		boolean shouldBeNegative = GetLast(this.digits) > 4 && GetLast(other.digits) > 4;
-		boolean shouldBePositive = GetLast(this.digits) <= 4 && GetLast(other.digits) <= 4;
+		boolean shouldBeNegative = this.digits.getLast() > 4 && other.digits.getLast() > 4;
+		boolean shouldBePositive = this.digits.getLast() <= 4 && other.digits.getLast() <= 4;
 
 		// The first loop adds the smaller number parts to the bigger number parts,
 		// carrying as needed until the smaller one runs out. The second loop then
@@ -83,7 +86,8 @@ public final class BigNumber {
 		// compliment.
 
 		int carry = 0;
-		int pad = GetLast(smallList) > 4 ? 9 : 0;
+		int pad = smallList.getLast() > 4 ? 9 : 0;
+		ArrayList<Integer> addedDigits = new ArrayList<>(bigSize);
 
 		// First loop
 		for (int i = 0; i < smallSize; i++) {
@@ -115,76 +119,107 @@ public final class BigNumber {
 	}
 
 	/**
-	 * Truncates the list, removing and leading 0's or 9's.
-	 * @param digits The list to truncate.
+	 * Subtracts other from this BigNumber.
+	 * @param other The BigNumber subtracted from this BigNumber.
+	 * @return A new BigNumber that's the result of subtracting other from this BigNumber.
 	 */
-	private static void truncate(ArrayList<Integer> digits) {
-		int last = GetLast(digits);
-		if(last != 0 && last != 9)
-			return;
-
-		int truncateUntil = 0;
-		int size = digits.size();
-
-		// Remove leading 9's or 0's, leaving at least one.
-		for(int i = size - 1; i > 0; i--) {
-			if(digits.get(i - 1) != last) {
-				break;
-			}
-			digits.remove(i);
-		}
+	public BigNumber subtract(BigNumber other) {
+		return add(other.negate());
 	}
 
 	/**
-	 * Subtracts rh and this BigNumber.
-	 * @param other The BigNumber subtracted from this BigNumber.
-	 * @return A new BigNumber that's the result of subtracting rh from this BigNumber.
+	 * Multiplies other with this BigNumber
+	 * @param other The BigNumber to multiply by.
+	 * @return A new BigNumber that's the result of multiplying other with this BigNumber.
 	 */
-	public BigNumber subtract(BigNumber other) {
-		return add(other.inverse());
-	}
-
 	public BigNumber multiply(BigNumber other) {
+		// We will add X to itself Y times.
+		BigNumber x = this;
+		BigNumber y = other;
 
-		BigNumber increment;
+		BigNumber increment = BigNumber.One;
+		Stack<BigNumber[]> previous = new Stack<>();
 
-		if(other.isNegative())
-			increment = BigNumber.fromString("-1");
-		else increment = BigNumber.fromString("1");
+		boolean yIsNegative = y.isNegative();
 
-		BigNumber otherCopy = other.copy();
-		BigNumber result = BigNumber.fromString("0");
+		if(yIsNegative)
+			y = y.negate();
 
-		while (!otherCopy.isZero()){
-			otherCopy = otherCopy.subtract(increment);
-			if (other.isNegative()) result = result.subtract(this);
-			else result = result.add(this);
+		// While the increment is less than y
+		while(increment.compareTo(y) <= 0) {
+			previous.add(new BigNumber[]{x, increment});
+			// Double the increment and double the X
+			increment = increment.add(increment);
+			x = x.add(x);
+		}
+
+		BigNumber result = BigNumber.Zero;
+		while (!y.isZero()){
+			// 0 is x * (2 ^ increment), 1 is the increment used.
+			BigNumber[] popped = previous.pop();
+			// While y is greater than the increment
+			while(y.compareTo(popped[1]) >= 0) {
+				y = y.subtract(popped[1]);
+				if(yIsNegative)
+					result = result.subtract(popped[0]);
+				else
+					result = result.add(popped[0]);
+			}
 		}
 		return result;
 	}
 
-	private BigNumber copy(){
-		return BigNumber.fromString(this.toString());
-	}
+	/**
+	 * Divides other from this BigNumber
+	 * @param other The BigNumber to divide by.
+	 * @return A BigNumber array of length 2, where [0] is the quotient and [1] is the mod.
+	 */
+	public BigNumber[] divide(BigNumber other) {
+		BigNumber dividend = this;
+		BigNumber divisor = other;
 
-	public BigNumber divide(BigNumber rh) {
-		return null;
-	}
+		boolean dividendIsNegative = dividend.isNegative();
+		boolean divisorIsNegative = divisor.isNegative();
 
-	public BigNumber getQuotient() {
-		return null;
-	}
+		if(dividendIsNegative)
+			dividend = dividend.negate();
+		if(divisorIsNegative)
+			divisor = divisor.negate();
 
-	public BigNumber getMod() {
-		return null;
+		BigNumber quotient = BigNumber.Zero;
+		BigNumber mod = dividend;
+		Stack<BigNumber[]> previous = new Stack<>();
+
+
+		BigNumber change = BigNumber.One;
+		while(divisor.compareTo(dividend) < 0) {
+			previous.add(new BigNumber[]{divisor, change});
+			change = change.add(change);
+			divisor = divisor.add(divisor);
+		}
+
+		while(dividend.compareTo(other) >= 0 && !previous.isEmpty()) {
+			// 0 is divisor, 1 is quotient multiplier
+			BigNumber[] popped = previous.pop();
+			while(dividend.compareTo(popped[0]) >= 0) {
+				dividend = dividend.subtract(popped[0]);
+				quotient = quotient.add(popped[1]);
+				mod = dividend;
+			}
+		}
+
+		if(dividendIsNegative ^ divisorIsNegative)
+			return new BigNumber[] {quotient.negate(), mod.negate()};
+		else
+			return new BigNumber[] {quotient, mod};
 	}
 
 	/**
 	 * Gets the inverse of a number.
 	 * @return The negative of this BigNumber.
 	 */
-	public BigNumber inverse() {
-		ArrayList<Integer> invertedDigits = new ArrayList<>(digits.size());
+	public BigNumber negate() {
+		ArrayList<Integer> invertedDigits = new ArrayList<>(digits.length);
 
 		// The inverse of 10's compliment is the number subtracted from all 9's, plus one.
 		int carry = 1;
@@ -200,18 +235,92 @@ public final class BigNumber {
 		return new BigNumber(invertedDigits);
 	}
 
-	private boolean isZero() {
-		return digits.size() == 1 && digits.get(0) == 0;
+	/**
+	 * Checks if this BigNumber equals zero.
+	 * @return True if it equals zero, otherwise false.
+	 */
+	public boolean isZero() {
+		return digits.length == 1 && digits.get(0) == 0;
 	}
 
-	private boolean isNegative(){
-		return GetLast(digits) > 4;
+	/**
+	 * Checks if this BigNumber is negative.
+	 * @return True if it is negative, otherwise false.
+	 */
+	public boolean isNegative(){
+		return digits.getLast() > 4;
 	}
 
+	/**
+	 * Converts a character (0123456789) to its equivalent integer.
+	 * @param character The character to convert.
+	 * @return The equivalent integer.
+	 */
 	private static int charToInt(char character) {
 		if(character < '0' || character > '9')
 			throw new NumberFormatException("Character " + character + " is not an integer.");
 		return character - '0';
+	}
+
+	/**
+	 * Truncates the list, removing and leading 0's or 9's.
+	 * @param digits The list to truncate.
+	 */
+	private static void truncate(ArrayList<Integer> digits) {
+		int last = GetLast(digits);
+		if(last != 0 && last != 9)
+			return;
+
+		int size = digits.size();
+
+		// Remove leading 9's or 0's, leaving one if necessary
+		for(int i = size - 1; i > 0; i--) {
+			int digit = digits.get(i - 1);
+			if(digit != last) {
+				if(last == 0 && digit <= 4)
+					digits.remove(i);
+				if(last == 9 && digit >= 5)
+					digits.remove(i);
+				break;
+			}
+			digits.remove(i);
+		}
+	}
+
+	@Override
+	public int compareTo(BigNumber other) {
+		if(this.isNegative()) {
+			if(!other.isNegative())
+				return -1;
+			// Other is also negative
+			if(this.digits.length > other.digits.length)
+				return -1;
+			if(this.digits.length < other.digits.length)
+				return 1;
+			if(this.digits.getLast() < other.digits.getLast())
+				return -1;
+			if(this.digits.getLast() > other.digits.getLast())
+				return 1;
+		} else {
+			if(other.isNegative())
+				return 1;
+			if(this.digits.length > other.digits.length)
+				return 1;
+			if(this.digits.length < other.digits.length)
+				return -1;
+			if(this.digits.getLast() < other.digits.getLast())
+				return -1;
+			if(this.digits.getLast() > other.digits.getLast())
+				return 1;
+		}
+
+		BigNumber result = this.subtract(other);
+		if(result.isZero())
+			return 0;
+		if(result.isNegative())
+			return -1;
+		else
+			return 1;
 	}
 
 	@Override
@@ -234,14 +343,14 @@ public final class BigNumber {
 
 		boolean isNegative = isNegative();
 
-		StringBuilder builder = new StringBuilder(digits.size() + (isNegative ? 1 : 0));
+		StringBuilder builder = new StringBuilder(digits.length + (isNegative ? 1 : 0));
 
 		if(isNegative) {
 			builder.append('-');
-			builder.append(this.inverse());
+			builder.append(this.negate());
 		} else {
-			boolean skipLast = GetLast(digits) == 0;
-			for(int i = digits.size() - (skipLast ? 1 : 0); i > 0; i--) {
+			boolean skipLast = digits.getLast() == 0;
+			for(int i = digits.length - (skipLast ? 1 : 0); i > 0; i--) {
 				builder.append(digits.get(i - 1));
 			}
 		}
