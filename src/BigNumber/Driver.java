@@ -34,7 +34,9 @@ public class Driver
 			line = scanner.nextLine();
 			y = BigNumber.fromString(line);
 
-			 writer.println("Sum: " + x.add(y));
+		 	writer.println("First: " x.tostring()); 
+		 	writer.println("Second: " y.tostring()); 
+			writer.println("Sum: " + x.add(y));
 			writer.println ("Sum: " + y.add(x));
 			writer.println ("First - Second: " + x.subtract(y));
 			writer.println ("Second - First: " + y.subtract(x));
